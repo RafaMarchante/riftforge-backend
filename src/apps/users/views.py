@@ -5,7 +5,10 @@ from django_ratelimit.decorators import ratelimit
 from django.utils.decorators import method_decorator
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
+
+from .serializers import UpdateProfileSerializer, UpdateAvatarSerializer
 
 import logging
 logger = logging.getLogger(__name__)
@@ -27,23 +30,44 @@ class GetProfileView(APIView):
             "last_login": user.last_login,
             "date_joined": user.date_joined
         })
-        
 
-@method_decorator(ratelimit(key='ip', rate='5/m', method='POST', block=True), name='post')
-class UpdateAvatarView(APIView):
+
+@method_decorator(ratelimit(key='ip', rate='5/m', method='PATCH', block=True), name='patch')
+class UpdateProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
-        user = request.user
-        avatar_image = request.FILES.get("avatar_image")
+    def patch(self, request):
+        serializer = UpdateProfileSerializer(
+            request.user,
+            data=request.data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
-        if avatar_image:
-            user.avatar_image = avatar_image
-            user.save()
-            return Response({"message": "Avatar updated"})
+
+@method_decorator(ratelimit(key='ip', rate='5/m', method='PATCH', block=True), name='patch')
+class UpdateAvatarView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser]
+
+    def patch(self, request):
+        old_avatar = request.user.avatar_image
         
-        return Response({"error": "No image provided"}, status=400)
-    
+        serializer = UpdateAvatarSerializer(
+            request.user,
+            data=request.data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+
+        if old_avatar and old_avatar.name != 'images/default_avatar.png':
+            old_avatar.delete(save=False)
+
+        serializer.save()
+        return Response(serializer.data)
+
 
 @method_decorator(ratelimit(key='ip', rate='5/m', method='POST', block=True), name='post')
 class ChangePasswordView(APIView):
