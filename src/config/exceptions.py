@@ -1,0 +1,8 @@
+from django_ratelimit.exceptions import Ratelimited
+from rest_framework.views import exception_handler
+from rest_framework.response import Response
+
+def custom_exception_handler(exc, context):
+    if isinstance(exc, Ratelimited):
+        return Response({"error": "Too many requests"}, status=429)
+    return exception_handler(exc, context)

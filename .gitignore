@@ -101,6 +101,7 @@ celerybeat-schedule.*
 
 # Environments 
 .env 
+.env.prod 
 .venv 
 env/ 
 venv/ 
@@ -138,3 +139,8 @@ GitHub.sublime-settings
 !.vscode/launch.json 
 !.vscode/extensions.json 
 .history
+
+# Project specific
+data
+static
+static_files
