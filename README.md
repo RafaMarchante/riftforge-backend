@@ -81,7 +81,6 @@ flowchart TD
 
     U -->|Interacts| C
     C -->|HTTP| B
-    B -->|Camera scan| B
     B --> D
     B --> R
     E -->|Prices| B
