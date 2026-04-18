@@ -69,25 +69,28 @@
 ---
 
 ## 7. App flow (visual simplificado)
-[User]
-|
-v
-[Client: Flutter]
-|
-| HTTP
-v
-[Backend: Django + DRF] <-- Camera scan
-|
-v
-[Database/cache: PostgreSQL + Redis]
-^
-|
-External APIs (prices)
+
+```mermaid
+flowchart TD
+    U([User])
+    C([Flutter Client])
+    B([Django + DRF Backend])
+    D([PostgreSQL])
+    R([Redis])
+    E([External APIs])
+
+    U -->|Interacts| C
+    C -->|HTTP| B
+    B -->|Camera scan| B
+    B --> D
+    B --> R
+    E -->|Prices| B
+```
 
 ---
 
 ## 8. UI/UX requirements
-- LIsts and grids for cards, collections and decks.
+- Lists and grids for cards, collections and decks.
 - Clear forms for collections and decks.
 - Combinable filters with ordering.
 - Visual fedback for errors and actions.

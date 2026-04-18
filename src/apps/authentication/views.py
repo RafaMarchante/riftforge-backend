@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 
-from .emails import send_verification_email, send_password_reset_email
+from .tasks import send_verification_email, send_password_reset_email
 from .serializers import RegisterSerializer
 from .services import AuthTokenService
 
@@ -29,7 +29,7 @@ class RegisterView(APIView):
 
         uid, token = AuthTokenService.generate_email_token(user)
         try:
-            send_verification_email(user, uid, token)
+            send_verification_email.delay(user.email, uid, token)
         except Exception:
             logger.error("Failed to send verification email for user: %s", user.id)
             return Response({"error": "Failed to send verification email"}, status=500)
@@ -54,7 +54,7 @@ class VerifyEmailView(APIView):
         user.save()
 
         return Response({"message": "Email verified"})
-    
+
 
 @method_decorator(ratelimit(key='ip', rate='3/m', method='POST', block=True), name='post')
 class ResendVerificationEmailView(APIView):
@@ -65,7 +65,7 @@ class ResendVerificationEmailView(APIView):
         if user and not user.is_active:
             uid, token = AuthTokenService.generate_email_token(user)
             try:
-                send_verification_email(user, uid, token)
+                send_verification_email.delay(user, uid, token)
             except Exception:
                 logger.error("Failed to send verification email for user: %s", user.id)
                 return Response({"error": "Failed to send verification email"}, status=500)
@@ -82,7 +82,7 @@ class PasswordResetRequestView(APIView):
         if user:
             uid, token = AuthTokenService.generate_email_token(user)
             try:
-                send_password_reset_email(user, uid, token)
+                send_password_reset_email.delay(user, uid, token)
             except Exception:
                 logger.error("Failed to send password reset email for user: %s", user.id)
                 return Response({"error": "Failed to send password reset email"}, status=500)

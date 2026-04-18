@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_celery_results',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
 ]
@@ -161,6 +162,20 @@ MEDIA_URL = '/user-media/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+# Redis configuration
+REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
+REDIS_PORT = int(os.getenv('REDIS_PORT', '6379'))
+
+
+# Celery configuration
+CELERY_BROKER_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}/0'
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+
+
 # Email configuration
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@riftforge.com')
@@ -194,6 +209,7 @@ LOGGING = {
         },
     },
 }
+
 
 # Production settings
 if not DEBUG:

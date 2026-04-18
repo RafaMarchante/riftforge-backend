@@ -4,12 +4,12 @@ services:
   # Backend service
   backend:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
     container_name: backend
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - ./backend:/app
+      - ./src:/app
     ports:
       - "8000:8000"
     env_file:
@@ -38,6 +38,23 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
+
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: celery_worker
+    command: celery -A config worker --loglevel=info
+    volumes:
+      - ./src:/app
+    env_file:
+      - .env
+    environment:
+      - REDIS_HOST=redis
+      - POSTGRES_HOST=db
+    depends_on:
+      - redis
+      - db
 
 volumes:
   postgres_data:
