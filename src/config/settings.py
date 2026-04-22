@@ -21,6 +21,7 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 BASE_URL = os.getenv('BASE_URL')
+RIFTBOUND_API_BASE_URL = os.getenv('RIFTBOUND_API_BASE_URL', 'https://api.riftcodex.com')
 
 APPEND_SLASH = False
 
