@@ -2,6 +2,8 @@ from celery import shared_task
 from .emails import (
     send_verification_email as _send_verification_email,
     send_password_reset_email as _send_password_reset_email,
+    send_password_change_confirmation_email as _send_password_change_confirmation_email,
+    send_profile_deletion_email as _send_profile_deletion_email
     )
 
 
@@ -17,5 +19,21 @@ def send_verification_email(self, user_email, uid, token):
 def send_password_reset_email(self, user_email, uid, token):
     try:
         _send_password_reset_email(user_email, uid, token)
+    except Exception as exc:
+        raise self.retry(exc=exc)
+
+
+@shared_task(bind=True, max_retries=3, default_retry_delay=60)
+def send_password_change_confirmation_email(self, user_email):
+    try:
+        _send_password_change_confirmation_email(user_email)
+    except Exception as exc:
+        raise self.retry(exc=exc)
+
+
+@shared_task(bind=True, max_retries=3, default_retry_delay=60)
+def send_profile_deletion_email(self, user_email):
+    try:
+        _send_profile_deletion_email(user_email)
     except Exception as exc:
         raise self.retry(exc=exc)

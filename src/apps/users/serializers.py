@@ -5,6 +5,13 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'username', 'avatar_image', 'last_login', 'date_joined']
+        read_only_fields = fields
+
+
 class UpdateProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

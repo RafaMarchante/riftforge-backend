@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.utils import timezone
@@ -31,14 +32,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=30, unique=True)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
-    avatar_image = models.ImageField(upload_to='images', default='images/default_avatar.png')
+    avatar_image = models.ImageField(upload_to='images', default=settings.DEFAULT_AVATAR)
     date_joined = models.DateTimeField(_("date joined"), blank=True, null=True)
     password_changed_at = models.DateTimeField(default=timezone.now)
     
     def set_password(self, raw_password):
         super().set_password(raw_password)
         self.password_changed_at = timezone.now()
-    
     
     objects = UserManager()
 

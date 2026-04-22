@@ -1,14 +1,17 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
 from django_ratelimit.decorators import ratelimit
 from django.utils.decorators import method_decorator
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from .serializers import UpdateProfileSerializer, UpdateAvatarSerializer
+from apps.authentication.tasks import send_profile_deletion_email
+from .serializers import ProfileSerializer
+from .services.user_service import UserService
 
 import logging
 logger = logging.getLogger(__name__)
@@ -22,14 +25,8 @@ class GetProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user
-        return Response({
-            "id": user.id,
-            "email": user.email,
-            "avatar_image": user.avatar_image.url if user.avatar_image else None,
-            "last_login": user.last_login,
-            "date_joined": user.date_joined
-        })
+        serializer = ProfileSerializer(request.user, context={'request': request})
+        return Response(serializer.data)
 
 
 @method_decorator(ratelimit(key='ip', rate='5/m', method='PATCH', block=True), name='patch')
@@ -37,14 +34,12 @@ class UpdateProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def patch(self, request):
-        serializer = UpdateProfileSerializer(
-            request.user,
-            data=request.data,
-            partial=True
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
+        try:
+            data = UserService.update_profile(request.user, request.data)
+        except Exception:
+            return Response({"error": "Failed to update profile"}, status=500)
+        
+        return Response(data)
 
 
 @method_decorator(ratelimit(key='ip', rate='5/m', method='PATCH', block=True), name='patch')
@@ -53,20 +48,12 @@ class UpdateAvatarView(APIView):
     parser_classes = [MultiPartParser]
 
     def patch(self, request):
-        old_avatar = request.user.avatar_image
+        try:
+            data = UserService.update_avatar(request.user, request.data)
+        except Exception:
+            return Response({"error": "Failed to update avatar"}, status=500)
         
-        serializer = UpdateAvatarSerializer(
-            request.user,
-            data=request.data,
-            partial=True
-        )
-        serializer.is_valid(raise_exception=True)
-
-        if old_avatar and old_avatar.name != 'images/default_avatar.png':
-            old_avatar.delete(save=False)
-
-        serializer.save()
-        return Response(serializer.data)
+        return Response(data)
 
 
 @method_decorator(ratelimit(key='ip', rate='5/m', method='POST', block=True), name='post')
@@ -77,19 +64,30 @@ class ChangePasswordView(APIView):
         current_password = request.data.get("current_password")
         new_password = request.data.get("new_password")
 
-        if not current_password or not new_password:
-            return Response({"error": "Both fields are required"}, status=400)
-
-        if not request.user.check_password(current_password):
-            return Response({"error": "Current password is incorrect"}, status=400)
-
         try:
-            validate_password(new_password, user=request.user)
-        except ValidationError as e:
-            logger.warning("Invalid new password for user: %s", request.user.id)
-            return Response({"error": "Invalid new password"}, status=400)
-
-        request.user.set_password(new_password)
-        request.user.save()
+            UserService.change_password(request.user, current_password, new_password)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=400)
+        except Exception:
+            return Response({"error": "Failed to change password"}, status=500)
 
         return Response({"message": "Password changed successfully"})
+
+
+@method_decorator(ratelimit(key='ip', rate='5/m', method='POST', block=True), name='post')
+class DeleteProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        password = request.data.get("password")
+        refresh = request.data.get("refresh")
+        
+        try:
+            UserService.delete_profile(request.user, password, refresh)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=400)
+        except Exception:
+            return Response({"error": "Failed to delete profile"}, status=500)
+        
+        return Response({"message": "Profile deleted successfully"})
+        

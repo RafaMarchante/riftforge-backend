@@ -22,6 +22,8 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 BASE_URL = os.getenv('BASE_URL')
 
+APPEND_SLASH = False
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
@@ -158,6 +160,8 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 
 MEDIA_ROOT = BASE_DIR / 'data'
 MEDIA_URL = '/user-media/'
+
+DEFAULT_AVATAR = 'images/default_avatar.png'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

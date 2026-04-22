@@ -10,7 +10,7 @@ User = get_user_model()
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True)
     username = serializers.CharField(max_length=30, required=True)
-    password = serializers.CharField(write_only=True, min_length=8, style={'input_type': 'password'})
+    password = serializers.CharField(write_only=True, style={'input_type': 'password'})
 
     class Meta:
         model = User
@@ -24,14 +24,16 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value
 
     def validate_email(self, value):
+        value = value.lower()
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError("Email already registered.")
         return value
 
     def validate_username(self, value):
+        value = value.lower()
         if User.objects.filter(username=value).exists():
             raise serializers.ValidationError("Username already taken.")
-        return value.lower()
+        return value
 
     def create(self, validated_data):
         user = User.objects.create_user(

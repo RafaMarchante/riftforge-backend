@@ -23,3 +23,21 @@ def send_password_reset_email(user_email, uid, token):
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[user_email],
     )
+
+
+def send_password_change_confirmation_email(user_email):
+    send_mail(
+        subject="Password Changed",
+        message="Your password has been changed. If this was a mistake, please contact support.",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user_email],
+    )
+
+
+def send_profile_deletion_email(user_email):
+    send_mail(
+        subject="Profile Deleted",
+        message="Your profile has been deleted. If this was a mistake, please contact support.",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user_email],
+    )
