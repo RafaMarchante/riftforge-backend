@@ -43,9 +43,10 @@ class Type(models.Model):
     
 class Rarity(models.Model):
     name = models.CharField(max_length=20, unique=True)
+    order = models.IntegerField(default=0)
 
     class Meta:
-        ordering = ['name']
+        ordering = ['order']
         verbose_name_plural = "Rarities"
         
     def __str__(self):

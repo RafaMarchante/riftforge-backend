@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_celery_results',
+    'django_filters',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
 ]
@@ -59,10 +60,9 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = 'users.User'
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'apps.authentication.backends.PasswordAwareJWTAuthentication',
-    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': ['apps.authentication.backends.PasswordAwareJWTAuthentication'],
     'EXCEPTION_HANDLER': 'config.exceptions.custom_exception_handler',
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
 
 SIMPLE_JWT = {

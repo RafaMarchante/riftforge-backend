@@ -7,6 +7,16 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+RARITY_ORDER = {
+    'Common': 1,
+    'Uncommon': 2,
+    'Rare': 3,
+    'Epic': 4,
+    'Showcase': 5,
+    'Promo': 6,
+}
+
+
 class CardSyncService:
     @classmethod
     def sync_sets(cls):
@@ -53,7 +63,10 @@ class CardSyncService:
         rarities_data = RiftboundApiClient.get_rarities()
         
         for rarity_name in rarities_data:
-            Rarity.objects.get_or_create(name=rarity_name)
+            Rarity.objects.get_or_create(
+                name=rarity_name,
+                order=RARITY_ORDER.get(rarity_name, 999),
+                )
             
         logger.info(f"Synced {len(rarities_data)} rarities")
         
