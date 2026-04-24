@@ -32,7 +32,8 @@ class UpdateProfileView(APIView):
     def patch(self, request):
         try:
             data = UserService.update_profile(request.user, request.data)
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error occurred: {e}")
             return Response({"error": "Failed to update profile"}, status=500)
         
         return Response(data)
@@ -46,7 +47,8 @@ class UpdateAvatarView(APIView):
     def patch(self, request):
         try:
             data = UserService.update_avatar(request.user, request.data)
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error occurred: {e}")
             return Response({"error": "Failed to update avatar"}, status=500)
         
         return Response(data)
@@ -64,7 +66,8 @@ class ChangePasswordView(APIView):
             UserService.change_password(request.user, current_password, new_password)
         except ValueError as e:
             return Response({"error": str(e)}, status=400)
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error occurred: {e}")
             return Response({"error": "Failed to change password"}, status=500)
 
         return Response({"message": "Password changed successfully"})
@@ -82,7 +85,8 @@ class DeleteProfileView(APIView):
             UserService.delete_profile(request.user, password, refresh)
         except ValueError as e:
             return Response({"error": str(e)}, status=400)
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error occurred: {e}")
             return Response({"error": "Failed to delete profile"}, status=500)
         
         return Response({"message": "Profile deleted successfully"})

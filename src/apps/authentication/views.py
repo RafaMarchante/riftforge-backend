@@ -19,7 +19,8 @@ class RegisterProfileView(APIView):
     def post(self, request):
         try:
             AuthService.register_profile(request.data)
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error occurred: {e}")
             return Response({"error": "Failed to register profile"}, status=500)
         
         return Response({"message": "Check your email to verify account"})
@@ -32,7 +33,8 @@ class VerifyEmailView(APIView):
             AuthService.verify_email(uid, token)
         except ValueError as e:
             return Response({"error": str(e)}, status=400)
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error occurred: {e}")
             return Response({"error": "Failed to verify email"}, status=500)
 
         return Response({"message": "Email verified"})
@@ -45,7 +47,8 @@ class ResendVerificationEmailView(APIView):
         
         try:
             AuthService.resend_verification_email(email)
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error occurred: {e}")
             return Response({"error": "Failed to resend verification email"}, status=500)
 
         return Response({"message": "If an unverified account exists, a verification email has been sent."})
@@ -58,7 +61,8 @@ class PasswordResetRequestView(APIView):
         
         try:
             AuthService.request_password_reset(email)
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error occurred: {e}")
             return Response({"error": "Failed to request password reset"}, status=500)
 
         return Response({"message": "If an account exists, a reset email has been sent."})
@@ -73,7 +77,8 @@ class PasswordResetConfirmView(APIView):
             AuthService.confirm_password_reset(uid, token, new_password)
         except ValueError as e:
             return Response({"error": str(e)}, status=400)
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error occurred: {e}")
             return Response({"error": "Failed to reset password"}, status=500)
 
         return Response({"message": "Password updated successfully"})
@@ -86,10 +91,11 @@ class LoginView(APIView):
         password = request.data.get("password")
 
         try:
-            tokens = AuthService.login(email, password)
+            tokens = AuthService.login(request,email, password)
         except ValueError as e:
             return Response({"error": str(e)}, status=400)
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error occurred: {e}")
             return Response({"error": "Failed to login"}, status=500)
         
         return Response(tokens)
@@ -106,7 +112,8 @@ class LogoutView(APIView):
             AuthService.logout(refresh)
         except ValueError as e:
             return Response({"error": str(e)}, status=400)
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error occurred: {e}")
             return Response({"error": "Failed to logout"}, status=500)
         
         return Response({"message": "Logged out successfully"})
