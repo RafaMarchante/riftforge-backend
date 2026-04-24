@@ -1,15 +1,10 @@
-from django.contrib.auth import get_user_model, authenticate
-from django.contrib.auth.models import update_last_login
-from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
 from django_ratelimit.decorators import ratelimit
 from django.utils.decorators import method_decorator
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 
-from .tasks import send_verification_email, send_password_reset_email, send_password_change_confirmation_email
 from .services.auth_service import AuthService
 
 import logging

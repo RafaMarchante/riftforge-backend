@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 
 
@@ -74,6 +75,7 @@ class Keyword(models.Model):
 
 
 class Card(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
     external_api_id = models.CharField(max_length=50, unique=True)
     riftbound_id = models.CharField(max_length=20)
