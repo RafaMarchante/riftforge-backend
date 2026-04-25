@@ -21,7 +21,8 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS('Syncing all cards data...'))
             
         try:
-            created, updated, failed = CardSyncService.sync_cards(set_id=set_id)
+            service = CardSyncService()
+            created, updated, failed = service.sync_cards(set_id=set_id)
             self.stdout.write(self.style.SUCCESS(f'Cards data synced successfully! (Created: {created}, Updated: {updated}, Failed: {failed})'))
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error syncing cards data: {str(e)}'))

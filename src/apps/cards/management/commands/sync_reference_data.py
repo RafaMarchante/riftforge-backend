@@ -8,7 +8,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS('Syncing reference data...'))
         try:
-            CardSyncService.sync_reference_data()
+            service = CardSyncService()
+            service.sync_reference_data()
             self.stdout.write(self.style.SUCCESS('Reference data synced successfully!'))
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error syncing reference data: {str(e)}'))
