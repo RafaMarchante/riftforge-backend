@@ -2,8 +2,8 @@ import re
 import requests
 from django.conf import settings
 
-from ..api_client import BaseCardApiClient
-from ..dataclasses import SetData, CardData
+from apps.cards.clients.api_client import BaseCardApiClient
+from apps.cards.services.dataclasses import SetData, CardData
 
 import logging
 logger = logging.getLogger(__name__)

@@ -1,9 +1,7 @@
-import re
 from datetime import datetime
 
-from packaging import tags
 from apps.cards.models import Card, Set, Tag, Type, Rarity, Domain, Keyword
-from .clients.riftcodex_client import RiftcodexApiClient
+from apps.cards.clients.riftcodex_client import RiftcodexApiClient
 
 import logging
 logger = logging.getLogger(__name__)
