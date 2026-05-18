@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.db.models import OuterRef, Subquery
 from django_ratelimit.decorators import ratelimit
 from django.utils.decorators import method_decorator
